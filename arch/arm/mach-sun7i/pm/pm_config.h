@@ -14,12 +14,12 @@
  #ifdef CONFIG_ARCH_SUN7I
  #undef CONFIG_ARCH_SUN7I
  #endif
-
+ 
 #define CONFIG_ARCH_SUN7I
 #define ENABLE_SUPER_STANDBY
 //#define SUN7I_FPGA_SIM
 //#define CHECK_IC_VERSION
-
+ 
  //#define RETURN_FROM_RESUME0_WITH_MMU    //suspend: 0xf000, resume0: 0xc010, resume1: 0xf000
 //#define RETURN_FROM_RESUME0_WITH_NOMMU // suspend: 0x0000, resume0: 0x4010, resume1: 0x0000
 //#define DIRECT_RETURN_FROM_SUSPEND //not support yet
@@ -45,7 +45,7 @@
 
 #define DRAM_BACKUP_BASE_ADDR2_PA (DRAM_BACKUP_BASE_ADDR1_PA + DRAM_BACKUP_SIZE1)
 #define DRAM_BACKUP_BASE_ADDR2 (MEM_ADDRESS(DRAM_BACKUP_BASE_ADDR2_PA))
-#define DRAM_BACKUP_SIZE2 (SZ_1K) // 1K bytes.
+#define DRAM_BACKUP_SIZE2 (SZ_1K) // 1K bytes. 
 
 #define RUNTIME_CONTEXT_SIZE (14) 	//note: r0-r13, 14*4 bytes
 
@@ -65,7 +65,7 @@
 #define AXP_WAKEUP_DESCEND      (1<<5)
 #define AXP_WAKEUP_SHORT_KEY    (1<<6)
 #define AXP_WAKEUP_LONG_KEY     (1<<7)
-
+ 
 #define AXP_MEM_WAKEUP              (AXP_WAKEUP_LOWBATT | AXP_WAKEUP_USB | AXP_WAKEUP_AC | AXP_WAKEUP_DESCEND | AXP_WAKEUP_ASCEND)
 #define AXP_BOOTFAST_WAKEUP         (AXP_WAKEUP_LOWBATT | AXP_WAKEUP_LONG_KEY)
 #define __AC(X,Y)	(X##Y)

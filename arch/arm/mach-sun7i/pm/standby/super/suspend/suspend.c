@@ -1,13 +1,13 @@
 /*
- * Contact: gqyang <gqyang <at> newbietech.com>
- *
- * License terms: GNU General Public License (GPL) version 2
- */
+ * Contact: gqyang <gqyang <at> newbietech.com>                               
+ *                                                                                   
+ * License terms: GNU General Public License (GPL) version 2                         
+ */       
 /*
  * the following code need be exceute in sram
  * before dram enter self-refresh,cpu can not access dram.
  */
-
+ 
 #include "./../super_i.h"
 #define RETRY_TIMES (5)
 
@@ -36,14 +36,14 @@ static struct aw_mem_para mem_para_info;
 //#define DIRECT_RETRUN
 #define DRAM_ENTER_SELFRESH
 //#define INIT_DRAM
-#define PRE_DISABLE_MMU
-			/*it is not possible to disable mmu, because
+#define PRE_DISABLE_MMU 
+ 			/*it is not possible to disable mmu, because 
                                  u need to keep va == pa, before disable mmu
-                                 so, the va must be in 0x0000 region.so u need to
+                                 so, the va must be in 0x0000 region.so u need to 
 			 creat this mapping before jump to suspend.
-                                 so u need ttbr0
+                                 so u need ttbr0 
                                  to keep this mapping.  */
-#define SET_COPRO_DEFAULT
+#define SET_COPRO_DEFAULT 
 #define FLUSH_TLB
 #define FLUSH_ICACHE
 #define INVALIDATE_DCACHE
@@ -56,7 +56,7 @@ static struct aw_mem_para mem_para_info;
 #define DIRECT_RETRUN
 #endif
 
-#if defined(ENTER_SUPER_STANDBY)
+#if defined(ENTER_SUPER_STANDBY) 
 #define SWITCH_STACK
 #undef PRE_DISABLE_MMU
 //#define DIRECT_RETRUN
@@ -71,7 +71,7 @@ static struct aw_mem_para mem_para_info;
 #define INVALIDATE_DCACHE
 #endif
 
-#if defined(ENTER_SUPER_STANDBY_WITH_NOMMU)
+#if defined(ENTER_SUPER_STANDBY_WITH_NOMMU) 
 #define SWITCH_STACK
 #define PRE_DISABLE_MMU
 #define DRAM_ENTER_SELFRESH
@@ -80,7 +80,7 @@ static struct aw_mem_para mem_para_info;
 #define FLUSH_TLB
 #define FLUSH_ICACHE
 #define INVALIDATE_DCACHE
-//#define SET_COPRO_DEFAULT
+//#define SET_COPRO_DEFAULT 
 #endif
 
 #ifdef WATCH_DOG_RESET
@@ -91,12 +91,12 @@ static struct aw_mem_para mem_para_info;
 #define START_WATCH_DOG
 #define FLUSH_TLB
 #define FLUSH_ICACHE
-//#define FLUSH_DCACHE
-                                                        /*can not flush data, if u do this, the data that u dont want save willed.
+//#define FLUSH_DCACHE 
+                                                        /*can not flush data, if u do this, the data that u dont want save willed. 
                                        * especillay, after u change the mapping table.
                                        */
 #define INVALIDATE_DCACHE
-#define SET_COPRO_DEFAULT
+#define SET_COPRO_DEFAULT 
 #endif
 
 /*
@@ -105,7 +105,7 @@ static struct aw_mem_para mem_para_info;
 *
 * Description: super mem ,suspend to ram entry in sram.
 *
-* Arguments  : arg  pointer to the parameter that
+* Arguments  : arg  pointer to the parameter that 
 *
 * Returns    : none
 *
@@ -127,7 +127,7 @@ int main(void)
 	do{*tmpPtr ++ = 0;}while(tmpPtr <= (char *)&__bss_end);
 
 	/* save stack pointer registger, switch stack to sram */
-	//mark it, just for test
+	//mark it, just for test 
 #ifdef SWITCH_STACK
 #ifdef PRE_DISABLE_MMU
 	//busy_waiting();
@@ -135,7 +135,7 @@ int main(void)
 #else
 	sp_backup = save_sp();
 #endif
-#endif
+#endif	
 
 
 	/* flush data and instruction tlb, there is 32 items of data tlb and 32 items of instruction tlb,
@@ -153,7 +153,7 @@ int main(void)
 	mem_preload_tlb();
 #endif
 
-#endif
+#endif	
 
 
 	/*get input para*/
@@ -167,7 +167,7 @@ int main(void)
 	mem_twi_init(AXP_IICBUS);
 
 	if(unlikely((mem_para_info.debug_mask)&PM_STANDBY_PRINT_STANDBY)){
-		printk("before power init. \n");
+		printk("before power init.\n");
 	}
 
     if (likely(mem_para_info.axp_enable))
@@ -182,24 +182,32 @@ int main(void)
             retry = RETRY_TIMES;
         }
     }
-
+	
 	/* dram enter self-refresh */
 #ifdef DRAM_ENTER_SELFRESH
+	if(unlikely((mem_para_info.debug_mask)&PM_STANDBY_PRINT_CHECK_CRC))
+    {
+        unsigned int crc;
+        crc = standby_get_crc();
+        standby_enable_crc(1);
+        printk("crc before dram self refresh:%x \n", crc);
+    }
 	if(unlikely((mem_para_info.debug_mask)&PM_STANDBY_PRINT_STANDBY)){
 		printk("before dram enter selfresh. \n");
 	}
 #ifdef GET_CYCLE_CNT
 	start = get_cyclecount();
 #endif
-#if 0
-	if(dram_power_save_process()){
+#if 1
+
+	if(dram_power_save_process(1)){
 		goto suspend_dram_err;
 	}
 #else
-	//mctl_power_save_entry();
-	mctl_self_refresh_entry();
+	mctl_power_save_entry();
+	//mctl_self_refresh_entry();
 #endif
-
+	
 	/* gating off dram clock */
 	if(unlikely((mem_para_info.debug_mask)&PM_STANDBY_PRINT_STANDBY)){
 		printk("before gating off dram clock. \n");
@@ -212,7 +220,7 @@ int main(void)
 #endif
 
 #endif
-
+	
 	//need to mask all the int src
 	if(unlikely((mem_para_info.debug_mask)&PM_STANDBY_PRINT_STANDBY)){
 		printk("before power off. \n");
@@ -225,7 +233,7 @@ int main(void)
 	if(suspend_with_mmu()){
 		goto suspend_err;
 	}
-#endif
+#endif	
 	//notice: never get here, so need watchdog, not busy_waiting.
 
 
@@ -234,8 +242,8 @@ suspend_err:
 		printk("err: \n");
 	}
 #ifdef DRAM_ENTER_SELFRESH
-#if 0
-	init_DRAM();
+#if 1
+	init_DRAM(&mem_para_info.dram_para);	
 #else
 	mctl_self_refresh_exit();
 	//mctl_power_save_exit();
@@ -276,21 +284,21 @@ static __s32 suspend_with_nommu(void)
 			set_copro_default();
 
 #endif
-
+	
 #ifdef JUMP_WITH_NOMMU
 			//jump_to_resume0_nommu(0x40100000);
 			jump_to_resume0(DRAM_BACKUP_BASE_ADDR_PA);
-#endif
-
+#endif 
+	
 #ifdef MEM_POWER_OFF
 			/*power off*/
 			/*NOTICE: not support to power off yet after disable mmu.
-			  * because twi use virtual addr.
+			  * because twi use virtual addr. 
 			  */
 			if(unlikely((mem_para_info.debug_mask)&PM_STANDBY_PRINT_STANDBY)){
 				printk_nommu("notify pmu to power off. \n");
 			}
-
+			
             if (likely(mem_para_info.axp_enable))
             {
                 int ret;
@@ -302,7 +310,7 @@ static __s32 suspend_with_nommu(void)
                 }
                 if(0 == retry){
                     goto mem_power_off_nommu_err;
-
+                    
                 }else{
                     retry = RETRY_TIMES;
                 }
@@ -315,19 +323,19 @@ mem_power_off_nommu_err:
 	enable_mmu();
 	mem_flush_tlb();
 	mem_preload_tlb();
-
+	
 	return -1;
 
 }
 
 static __s32 suspend_with_mmu(void)
 {
-
+	
 #ifdef SET_COPRO_DEFAULT
 	set_copro_default();
 #endif
-
-
+	
+	
 #ifdef MEM_POWER_OFF
 	/*power off*/
     if (likely(mem_para_info.axp_enable))
@@ -339,10 +347,10 @@ static __s32 suspend_with_mmu(void)
             return -1;
         }else{
             retry = RETRY_TIMES;
-        }
+        }           
     }
 #endif
-
+	
 #ifdef WITH_MMU
 	jump_to_resume0(DRAM_BACKUP_BASE_ADDR);
 #endif
@@ -350,3 +358,4 @@ static __s32 suspend_with_mmu(void)
 	return 0;
 
 }
+

@@ -14,7 +14,7 @@ void busy_waiting(void)
 #if 1
 	volatile __u32 loop_flag = 1;
 	while(1 == loop_flag);
-
+	
 #endif
 	return;
 }
@@ -24,9 +24,62 @@ void fake_busy_waiting(void)
 #if 1
 	volatile __u32 loop_flag = 2;
 	while(1 == loop_flag);
-
+	
 #endif
 	return;
+}
+
+
+#define RTC_DATA_REG1				(SW_VA_TIMERC_IO_BASE + 0x124)
+#define RTC_DATA_REG2				(SW_VA_TIMERC_IO_BASE + 0x128)
+#define RTC_DATA_REG3				(SW_VA_TIMERC_IO_BASE + 0x12c)
+#define lread(n)                    (*((volatile unsigned int *)(n)))
+#define lwrite(addr,value)   (*((volatile unsigned int *)(addr)) = (value))
+
+void standby_enable_crc(int enabled)
+{
+    if (enabled)
+    {
+        lwrite(RTC_DATA_REG1, 0x16510001);
+    }
+    else
+    {
+        lwrite(RTC_DATA_REG1, 0);
+    }
+    return;
+}
+
+void standby_set_crc(void *addr, int size)
+{
+    if (size > 0)
+    {
+        lwrite(RTC_DATA_REG2, (unsigned int)addr);
+        lwrite(RTC_DATA_REG3, (size >> 2));
+    }
+}
+
+unsigned int standby_get_crc(void)
+{
+    int i;
+    unsigned int *tmp;
+    unsigned int crc = -1;
+
+    if (lread(RTC_DATA_REG1) != (unsigned int)(0x16510001))
+    {
+        return -1;
+    }
+    lwrite(RTC_DATA_REG1, 0);
+    tmp = (unsigned int *)lread(RTC_DATA_REG2);
+    i = lread(RTC_DATA_REG3);
+    printk("RTC_DATA_REG3(%x):%x\n",RTC_DATA_REG1,lread(RTC_DATA_REG1));    
+    printk("RTC_DATA_REG3(%x):%x\n",RTC_DATA_REG2,lread(RTC_DATA_REG2));    
+    printk("RTC_DATA_REG3(%x):%x\n",RTC_DATA_REG3,lread(RTC_DATA_REG3));    
+    while (i > 0)
+    {
+        crc += *tmp++;
+        i--;
+    }
+    return crc;
 }
 
 
@@ -41,14 +94,14 @@ void io_init(void)
 {
 	//config port output
 	*(volatile unsigned int *)(PORT_CONFIG)  = 0x111111;
-
+	
 	return;
 }
 
 void io_init_high(void)
 {
 	__u32 data;
-
+	
 	//set port to high
 	data = *(volatile unsigned int *)(PORT_DATA);
 	data |= 0x3f;
@@ -70,7 +123,7 @@ void io_init_low(void)
 }
 
 /*
- * set pa port to high, num range is 0-7;
+ * set pa port to high, num range is 0-7;	
  */
 void io_high(int num)
 {

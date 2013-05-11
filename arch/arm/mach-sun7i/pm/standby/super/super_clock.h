@@ -35,3 +35,4 @@ __s32 mem_clk_getdiv(struct clk_div_t  *clk_div);
 extern __u32   cpu_ms_loopcnt;
 
 #endif  /* __SUPER_CLOCK_H__ */
+

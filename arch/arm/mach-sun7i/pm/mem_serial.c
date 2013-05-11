@@ -37,7 +37,7 @@ void serial_init_nommu(void)
 	// config uart gpio
 	// config tx gpio
 	//fpga not need care gpio config;
-
+	
 	/* set baudrate */
 	df = (p2clk + (SUART_BAUDRATE<<3))/(SUART_BAUDRATE<<4);
 	lcr = readl(SUART_LCR_PA);
@@ -86,18 +86,18 @@ static char serial_get_char_nommu(void)
 __s32 serial_puts_nommu(const char *string)
 {
 	//ASSERT(string != NULL);
-
+	
 	while(*string != '\0')
 	{
 		if(*string == '\n')
 		{
-			// if current character is '\n',
+			// if current character is '\n', 
 			// insert output with '\r'.
 			serial_put_char_nommu('\r');
 		}
 		serial_put_char_nommu(*string++);
 	}
-
+	
 	return OK;
 }
 
@@ -105,7 +105,7 @@ __u32 serial_gets_nommu(char* buf, __u32 n)
 {
 	__u32 i;
 	char c;
-
+	
 	for (i=0; i<n; i++) {
 		c = serial_get_char_nommu();
 		if (c == 0)
@@ -163,7 +163,7 @@ static void serial_put_char(char c)
 	//while (!(readb(SUART_USR) & 4));
 	//writeb(readb(SUART_TX_FIFO_LEVEL_VA), SUART_THR); //fifo level;
 	while (!(readb(SUART_TX_FIFO_LEVEL_VA) < 48))
-		;
+		;	
 	writeb(c, SUART_THR);
 #else
 	while (!(readb(SUART_LSR) & ( 1 << 6 )));
@@ -195,18 +195,18 @@ static char serial_get_char(void)
 __s32 serial_puts(const char *string)
 {
 	//ASSERT(string != NULL);
-
+	
 	while(*string != '\0')
 	{
 		if(*string == '\n')
 		{
-			// if current character is '\n',
+			// if current character is '\n', 
 			// insert output with '\r'.
 			serial_put_char('\r');
 		}
 		serial_put_char(*string++);
 	}
-
+	
 	return OK;
 }
 
@@ -215,7 +215,7 @@ __u32 serial_gets(char* buf, __u32 n)
 {
 	__u32 i;
 	char c;
-
+	
 	for (i=0; i<n; i++) {
 		c = serial_get_char();
 		if (c == 0)
